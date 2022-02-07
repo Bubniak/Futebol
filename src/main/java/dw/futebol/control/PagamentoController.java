@@ -127,9 +127,34 @@ public class PagamentoController
         }
     }
 
-    /* POST /api/jogadores/{jogadorId}/pagamentos : adiciona um pagamento */
+    /* POST /api/pagamentos : adiciona um pagamento - passando o id do jogador no body*/
+    @RequestMapping(method = RequestMethod.POST, value = "/api/pagamentos")
+    public ResponseEntity<Pagamento> createPagamento(@RequestBody Pagamento pagamento)
+    {
+        try
+        {
+            Optional<Jogador> jogador = jogadorRepository.findById(pagamento.getJogador().getId());
+
+            
+            if(jogador.isPresent())
+            {
+                Pagamento p = pagamentoRepository.save(new Pagamento(pagamento.getAno(), pagamento.getMes(), pagamento.getValor(), jogador.get()));
+                return new ResponseEntity<>(p, HttpStatus.CREATED);
+            }
+
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            
+        }
+
+        catch(Exception e)
+        {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /* POST /api/jogadores/{jogadorId}/pagamentos : adiciona um pagamento - passando o id do jogador no path */
     @RequestMapping(method = RequestMethod.POST, value = "/api/jogadores/{jogadorId}/pagamentos")
-    public ResponseEntity<Pagamento> createPagamento(@PathVariable("jogadorId") long jogadorId, @RequestBody Pagamento pagamento)
+    public ResponseEntity<Pagamento> createPagamentoByJogadorId(@PathVariable("jogadorId") long jogadorId, @RequestBody Pagamento pagamento)
     {
         try
         {
@@ -177,5 +202,13 @@ public class PagamentoController
 
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
+
+
+
+
+
+
+
 
 }
